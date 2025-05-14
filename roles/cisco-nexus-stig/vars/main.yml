@@ -1,0 +1,4 @@
+---
+# vars file for cisco-nexus-stig
+
+my_package_name: "openscap-utils"

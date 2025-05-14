@@ -1,0 +1,4 @@
+[new_radios]
+192.168.4.46 ansible_user=cassidy
+
+# ansible_ssh_private_key_file=~/.ssh/id_ed25519

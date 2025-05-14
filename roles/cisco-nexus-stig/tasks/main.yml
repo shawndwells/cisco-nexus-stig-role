@@ -1,0 +1,14 @@
+---
+# tasks file for cisco-nexus-stig
+
+- name: Install My Package
+  package:
+    name: "{{ my_package_name }}"
+    state: present
+  become: yes
+
+- name: Restart SSH Daemon
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+  become: yes

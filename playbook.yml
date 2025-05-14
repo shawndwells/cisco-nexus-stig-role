@@ -1,0 +1,12 @@
+---
+# playbook
+
+- name: Config baremetal Ubuntu 22.04 LTS for Cornet
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    - name: Configure using role
+      import_role:
+        name: cisco-nexus-stig-role
