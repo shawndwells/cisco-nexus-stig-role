@@ -1,4 +1,5 @@
 ---
 # vars file for cisco-nexus-stig
 
-my_package_name: "openscap-utils"
+ntp_servers:
+  - 8.8.8.8
