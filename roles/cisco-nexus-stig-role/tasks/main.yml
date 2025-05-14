@@ -1,14 +1,12 @@
 ---
 # tasks file for cisco-nexus-stig
 
-- name: Install My Package
-  package:
-    name: "{{ my_package_name }}"
-    state: present
-  become: yes
+#- name: Enable NX-API
+#  hosts: ashburn-lab
+#  gather_facts: no
 
-- name: Restart SSH Daemon
-  ansible.builtin.systemd:
-    name: sshd
-    state: restarted
-  become: yes
+- name: Enable NXAPI access with default configuration
+  nxos_nxapi:
+    state: present
+    enable_http: yes
+    enable_https: yes
