@@ -17,3 +17,12 @@
   nxos_config:
     lines:
       - ntp server {{ item }} use-vrf default
+
+- name: "SV-221078r999687_rule: The Cisco switch must not be configured to have any feature enabled that calls home to the vendor"
+  when: ansible_network_os == 'nxos'
+  cisco.nxos.nxos_config:
+    lines:
+      - '  no enable'
+    parents: callhome
+    match: exact
+    replace: line
