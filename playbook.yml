@@ -1,7 +1,7 @@
 ---
 # playbook
 
-- name: Config baremetal Ubuntu 22.04 LTS for Cornet
+- name: Configure Cisco NX-OS to RTR STIG
   hosts: all
   gather_facts: yes
   become: yes
