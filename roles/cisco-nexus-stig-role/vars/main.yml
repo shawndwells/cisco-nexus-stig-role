@@ -3,3 +3,7 @@
 
 ntp_servers:
   - 8.8.8.8
+
+stig_rules:
+  SRG_NET_000131_RTR_000083: true
+  SRG_NET_000019_RTR_000007: true
