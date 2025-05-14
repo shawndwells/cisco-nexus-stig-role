@@ -19,4 +19,3 @@
   loop: '{{ if_state.stdout[0].TABLE_interface.ROW_interface }}'
   when: 
     - item.state == 'notconnect' or item.state == 'xcvrAbsent'
-    - item.interface | length <= 11
