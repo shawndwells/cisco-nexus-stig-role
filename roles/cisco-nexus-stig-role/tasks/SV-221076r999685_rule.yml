@@ -1,0 +1,21 @@
+# DISA SRG:       SRG-NET-000019-RTR-000007 
+# Severity:       low
+# Rule ID:        SV-221076r999685_rule
+# Identifiers:    SV-110971, V-101867, CCI-001414
+
+- name: "[SV-221076r999685_rule] Gather Port Status"
+  when: ansible_network_os == 'nxos'
+  cisco.nxos.nxos_command:
+    commands:
+      - show interface status | json
+  register: if_state
+
+- name: "[SV-221076r999685_rule] Set Description and Shutdown Unused Ports"
+  cisco.nxos.nxos_interfaces: 
+    config:
+      - name: '{{ item.interface }}'
+        description: "DISABLED - UNUSED"
+        enabled: false
+  loop: '{{ if_state.stdout[0].TABLE_interface.ROW_interface }}'
+  when: 
+    - item.state == 'notconnect' or item.state == 'xcvrAbsent'

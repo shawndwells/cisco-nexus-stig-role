@@ -1,0 +1,15 @@
+# DISA SRG:       SRG-NET-000131-RTR-000083
+# Severity:       medium
+# Rule ID:        SV-221078r999687_rule
+# Identifiers:    SV-110975, V-101871, CCI-002403
+
+- name: >
+    SV-221078r999687_rule: The Cisco switch must not be configured to have any
+    feature enabled that calls home to the vendor
+  when: ansible_network_os == 'nxos'
+  cisco.nxos.nxos_config:
+    lines:
+      - '  no enable'
+    parents: callhome
+    match: exact
+    replace: line

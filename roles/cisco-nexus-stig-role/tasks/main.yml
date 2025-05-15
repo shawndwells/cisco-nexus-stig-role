@@ -5,24 +5,24 @@
 #  hosts: ashburn-lab
 #  gather_facts: no
 
-- name: Enable NXAPI access with default configuration
-  nxos_nxapi:
-    state: present
-    enable_http: yes
-    enable_https: yes
+#- name: Enable NXAPI access with default configuration
+#  nxos_nxapi:
+#    state: present
+#    enable_http: yes
+#    enable_https: yes
 
-- name: Set NTP Server
-  when: ansible_network_os == 'nxos'
-  loop: "{{ ntp_servers }}"
-  nxos_config:
-    lines:
-      - ntp server {{ item }} use-vrf default
+#- name: Set NTP Server
+#  when: ansible_network_os == 'nxos'
+#  loop: "{{ ntp_servers }}"
+#  nxos_config:
+#    lines:
+#      - ntp server {{ item }} use-vrf default
 
-- name: "SV-221078r999687_rule: The Cisco switch must not be configured to have any feature enabled that calls home to the vendor"
-  when: ansible_network_os == 'nxos'
-  cisco.nxos.nxos_config:
-    lines:
-      - '  no enable'
-    parents: callhome
-    match: exact
-    replace: line
+
+- name: "SRG-NET-000019-RTR-000007"
+  include_tasks: SV-221076r999685_rule.yml
+  when: stig_rules.SRG_NET_000019_RTR_000007 | bool | default(true)
+
+- name: "SRG-NET-000131-RTR-000083"
+  include_tasks: SV-221078r999687_rule.yml
+  when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
