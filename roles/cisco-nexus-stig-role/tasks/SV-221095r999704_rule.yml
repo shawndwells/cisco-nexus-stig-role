@@ -1,0 +1,36 @@
+# DISA SRG:       SRG-NET-000205-RTR-000015
+# Severity:       medium
+# Rule ID:        SV-221095r999704_rule
+# Identifiers:    SV-111009, V-101905, CCI-002403
+
+- name: >
+    The Cisco perimeter switch must be configured to block all packets with any IP options.
+  cisco.nxos.nxos_command:
+    commands:
+      - conf t
+      - no ip source-route
+      - end
+
+#       #######
+
+#       ---
+# - name: Disable IP source routing on NX‑OS switches
+#   hosts: nxos
+#   connection: network_cli          # assumes inventory vars (username, password, etc.) are set
+#   gather_facts: no
+#   any_errors_fatal: true           # stop every host if any error occurs
+
+#   tasks:
+#     - name: Disable IP source routing
+#       cisco.nxos.nxos_config:
+#         lines:
+#           - no ip source-route
+#       register: cfg_result         # captures module result; play will automatically stop if this task fails
+
+#     - name: Verify that IP source routing is disabled
+#       cisco.nxos.nxos_command:
+#         commands:
+#           - show running-config | include "^ip source-route"
+#       register: verify_result
+#       failed_when: verify_result.stdout[0] != ""   # if the string is still present, the config didn't stick → fail
+#       changed_when: false                          # pure check; don’t mark the play “changed”
