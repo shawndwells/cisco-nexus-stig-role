@@ -1,0 +1,22 @@
+# DISA SRG:       SRG-NET-000205-RTR-000015
+# Severity:       medium
+# Rule ID:        SV-221095r999704_rule
+# Identifiers:    SV-111009, V-101905, CCI-002403
+
+- name: >
+    The Cisco perimeter switch must be configured to block all packets with any IP options.
+  cisco.nxos.nxos_command:
+    commands:
+      - conf t
+      - no ip source-route
+      - end
+
+- name: Verify 'no ip source-route' is set on NX-OS
+  cisco.nxos.nxos_command:
+    commands:
+      - show running-config | grep 'ip source-route'
+  register: result
+
+- name: Display grep result
+  debug:
+    var: result.stdout_lines

@@ -26,3 +26,10 @@
 - name: "SRG-NET-000131-RTR-000083"
   include_tasks: SV-221078r999687_rule.yml
   when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
+
+# don't wanna run this 80 times so...
+# when: ansible_network_os == 'nxos'
+
+- name: "SRG-NET-000205-RTR-000015"
+  include_tasks: SV-221095r999704_rule.yml
+  when: stig_rules.SRG_NET_000205_RTR_000015 | bool | default(true)
