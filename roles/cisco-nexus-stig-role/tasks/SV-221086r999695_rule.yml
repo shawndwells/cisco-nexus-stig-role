@@ -1,0 +1,32 @@
+# DISA SRG:       SRG-NET-000078-RTR-000001
+# Severity:       low
+# Rule ID:        SV-221086r999695_rule
+# Identifiers:    SV-110991, V-101887, CCI-000134
+
+- name: Create ACL with drop+log rule for auditing
+  cisco.nxos.nxos_config:
+    lines:
+      - 90 deny ip any any log
+    parents: ip access-list EXTERNAL_ACL
+
+- name: Get running config
+  cisco.nxos.nxos_command:
+    commands:
+      - show running-config
+  register: runconfig
+
+- name: Extract L3 interfaces from config blocks
+  set_fact:
+    l3_interfaces: >-
+      {{
+        runconfig.stdout[0]
+        | regex_findall('interface (.+?)\\n(?: .+\\n)*? ip address')
+        | list
+      }}
+
+- name: Apply ACL to L3 interfaces
+  cisco.nxos.nxos_config:
+    lines:
+      - ip access-group EXTERNAL_ACL in
+    parents: "interface {{ item }}"
+  loop: "{{ l3_interfaces }}"
