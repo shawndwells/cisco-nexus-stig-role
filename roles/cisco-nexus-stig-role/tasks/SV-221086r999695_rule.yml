@@ -3,10 +3,32 @@
 # Rule ID:        SV-221086r999695_rule
 # Identifiers:    SV-110991, V-101887, CCI-000134
 
-- name: Create ACL with drop+log rule for auditing
+# if allowed_traffic not updated, makes sure doesn't crash on undefined/ None
+- name: If allowed_traffic is undefined or None set empty list
+  set_fact:
+    allowed_traffic_sanitized: "{{ allowed_traffic | default([]) }}"
+
+# sends warning if no allowed_traffic was added
+- name: Warn if allowed_traffic is empty
+  debug:
+    msg: "WARNING: allowed_traffic under vars/main.yml not defined. ACL will only contain 'deny ip any any log'"
+  when: allowed_traffic_sanitized | length == 0
+
+# builds rule set list
+- name: Build full ACL rule set
+  set_fact:
+    acl_rules: >-
+      {{
+        allowed_traffic_sanitized | zip(range(10, 10 + allowed_traffic_sanitized | length * 10, 10)) |
+        map('reverse') |
+        map('join', ' ') |
+        list + ['90 deny ip any any log']
+      }}
+
+# creates list from acl_rules
+- name: Create ACL with allow-list
   cisco.nxos.nxos_config:
-    lines:
-      - 90 deny ip any any log
+    lines: "{{ acl_rules }}"
     parents: ip access-list EXTERNAL_ACL
 
 - name: Get running config

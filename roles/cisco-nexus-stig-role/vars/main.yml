@@ -9,3 +9,7 @@ stig_rules:
   SRG_NET_000019_RTR_000007: true
   SRG_NET_000205_RTR_000015: true
   SRG_NET_000202_RTR_000001: true
+
+allowed_traffic:
+# permit tcp/etc <source> <destination> [port]
+# - 
