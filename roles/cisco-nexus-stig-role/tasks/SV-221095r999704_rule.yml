@@ -4,22 +4,8 @@
 # Identifiers:    SV-111009, V-101905, CCI-002403
 
 - name: >
-    [SV-221095r999704_rule Step 1 of 3] The Cisco perimeter switch must be configured to
+    [SV-221095r999704_rule] The Cisco perimeter switch must be configured to
     block all packets with any IP options
-  cisco.nxos.nxos_command:
-    commands:
-      - conf t
+  cisco.nxos.nxos_config:
+    lines:
       - no ip source-route
-      - end
-
-- name: >
-    [SV-221095r999704_rule Step 2 of 3] Verify 'no ip source-route' is set on NX-OS
-  cisco.nxos.nxos_command:
-    commands:
-      - show running-config | grep 'ip source-route'
-  register: result
-
-- name: >
-    [SV-221095r999704_rule Step 3 of 3] Display grep result
-  debug:
-    var: result.stdout_lines

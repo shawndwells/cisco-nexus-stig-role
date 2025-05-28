@@ -1,0 +1,13 @@
+# DISA SRG:       SRG-NET-000362-RTR-000111
+# Severity:       medium
+# Rule ID:        SV-221082r999691_rule
+# Identifiers:    SV-110983, V-101879, CCI-002385
+
+- name: >
+    [SV-SV-221082r999691_rule] The Cisco switch must be configured to have
+    Gratuitous ARP disabled on all external interfaces
+  cisco.nxos.nxos_config:
+    lines:
+      - no ip arp gratuitous request
+    parents: "interface {{ item }}"
+  loop: "{{ external_interfaces }}"

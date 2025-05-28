@@ -1,0 +1,54 @@
+# DISA SRG:       SRG-NET-000078-RTR-000001
+# Severity:       low
+# Rule ID:        SV-221086r999695_rule
+# Identifiers:    SV-110991, V-101887, CCI-000134
+
+# if allowed_traffic not updated, makes sure doesn't crash on undefined/ None
+- name: If allowed_traffic is undefined or None set empty list
+  set_fact:
+    allowed_traffic_sanitized: "{{ allowed_traffic | default([]) }}"
+
+# sends warning if no allowed_traffic was added
+- name: Warn if allowed_traffic is empty
+  debug:
+    msg: "WARNING: allowed_traffic under vars/main.yml not defined. ACL will only contain 'deny ip any any log'"
+  when: allowed_traffic_sanitized | length == 0
+
+# builds rule set list
+- name: Build full ACL rule set
+  set_fact:
+    acl_rules: >-
+      {{
+        allowed_traffic_sanitized | zip(range(10, 10 + allowed_traffic_sanitized | length * 10, 10)) |
+        map('reverse') |
+        map('join', ' ') |
+        list + ['90 deny ip any any log']
+      }}
+
+# creates list from acl_rules
+- name: Create ACL with allow-list
+  cisco.nxos.nxos_config:
+    lines: "{{ acl_rules }}"
+    parents: ip access-list EXTERNAL_ACL
+
+- name: Get running config
+  cisco.nxos.nxos_command:
+    commands:
+      - show running-config
+  register: runconfig
+
+- name: Extract L3 interfaces from config blocks
+  set_fact:
+    l3_interfaces: >-
+      {{
+        runconfig.stdout[0]
+        | regex_findall('interface (.+?)\\n(?: .+\\n)*? ip address')
+        | list
+      }}
+
+- name: Apply ACL to L3 interfaces
+  cisco.nxos.nxos_config:
+    lines:
+      - ip access-group EXTERNAL_ACL in
+    parents: "interface {{ item }}"
+  loop: "{{ l3_interfaces }}"
