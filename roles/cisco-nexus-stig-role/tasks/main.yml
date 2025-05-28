@@ -18,6 +18,8 @@
 #    lines:
 #      - ntp server {{ item }} use-vrf default
 
+# don't wanna run this 80 times so...
+# when: ansible_network_os == 'nxos'
 
 - name: "SRG-NET-000019-RTR-000007"
   include_tasks: SV-221076r999685_rule.yml
@@ -27,9 +29,14 @@
   include_tasks: SV-221078r999687_rule.yml
   when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
 
-# don't wanna run this 80 times so...
-# when: ansible_network_os == 'nxos'
-
 - name: "SRG-NET-000205-RTR-000015"
   include_tasks: SV-221095r999704_rule.yml
   when: stig_rules.SRG_NET_000205_RTR_000015 | bool | default(true)
+
+- name: "SRG-NET-000362-RTR-000113"
+  include_tasks: SV-221084r999693_rule.yml
+  when: stig_rules.SRG_NET_000362_RTR_000113 | bool | default(true)
+
+- name: "SRG-NET-000362-RTR-000115"
+  include_tasks: SV-221085r999694_rule.yml
+  when: stig_rules.SRG_NET_000362_RTR_000115 | bool | default(true)

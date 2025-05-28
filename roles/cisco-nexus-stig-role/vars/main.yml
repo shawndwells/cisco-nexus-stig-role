@@ -24,6 +24,8 @@ stig_rules:
   SRG_NET_000131_RTR_000083: true
   SRG_NET_000019_RTR_000007: true
   SRG_NET_000205_RTR_000015: true
+  SRG-NET-000362-RTR-000113: true
+  SRG-NET-000362-RTR-000115: true
 
 #
 # The `external_interfaces` variable is used to specify the interfaces
