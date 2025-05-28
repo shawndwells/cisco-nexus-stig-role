@@ -18,22 +18,39 @@
 #     lines:
 #       - ntp server {{ item }} use-vrf default
 
-
-# - name: "SRG-NET-000019-RTR-000007"
-#   include_tasks: SV-221076r999685_rule.yml
-#   when: stig_rules.SRG_NET_000019_RTR_000007 | bool | default(true)
-
-# - name: "SRG-NET-000131-RTR-000083"
-#   include_tasks: SV-221078r999687_rule.yml
-#   when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
-
 # don't wanna run this 80 times so...
 # when: ansible_network_os == 'nxos'
 
+- name: "SRG-NET-000019-RTR-000007"
+  ansible.builtin.include_tasks: SV-221076r999685_rule.yml
+  when: stig_rules.SRG_NET_000019_RTR_000007 | bool | default(true)
+
+- name: "SRG-NET-000131-RTR-000083"
+  ansible.builtin.include_tasks: SV-221078r999687_rule.yml
+  when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
+
 - name: "SRG-NET-000205-RTR-000015"
-  include_tasks: SV-221095r999704_rule.yml
+
+  ansible.builtin.include_tasks: SV-221095r999704_rule.yml
   when: stig_rules.SRG_NET_000205_RTR_000015 | bool | default(true)
 
-- name: "SRG-NET-000202-RTR-000001"
-  include_tasks: SV-221086r999695_rule.yml
-  when: stig_rules.SRG_NET_000202_RTR_000001 | bool | default(true)
+- name: "SRG-NET-000362-RTR-000111"
+  ansible.builtin.include_tasks: SV-221082r999691_rule.yml
+  when: stig_rules.SRG_NET_000362_RTR_000111 | bool | default(true)
+
+- name: "SRG-NET-000362-RTR-000113"
+  ansible.builtin.include_tasks: SV-221084r999693_rule.yml
+  when: stig_rules.SRG_NET_000362_RTR_000113 | bool | default(true)
+
+- name: "SRG-NET-000362-RTR-000115"
+  ansible.builtin.include_tasks: SV-221085r999694_rule.yml
+  when: stig_rules.SRG_NET_000362_RTR_000115 | bool | default(true)
+
+- name: "SRG-NET-000364-RTR-000111"
+  ansible.builtin.include_tasks: SV-221097r999706_rule.yml
+  when: stig_rules.SRG_NET_000364_RTR_000111 | bool | default(true)
+
+- name: "SRG-NET-000364-RTR-000111"
+  ansible.builtin.include_tasks: SV-221098r999707_rule.yml
+  when: stig_rules.SRG_NET_000364_RTR_000112 | bool | default(true)
+  

@@ -1,0 +1,13 @@
+# DISA SRG:       SRG-NET-000362-RTR-000115
+# Severity:       medium
+# Rule ID:        SV-221085r999694_rule
+# Identifiers:    SV-110989, V-101885, CCI-002385
+
+- name: >
+    [SV-221085r999694_rule] Ensure 'no ip unreachables' is set on all external
+    interfaces
+  cisco.nxos.nxos_config:
+    lines:
+      - no ip redirects
+    parents: "interface {{ item }}"
+  loop: "{{ external_interfaces }}"
