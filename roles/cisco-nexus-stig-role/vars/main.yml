@@ -21,14 +21,15 @@ ntp_servers:
 # management of compliance requirements within the Ansible role.
 #
 stig_rules:
-  SRG_NET_000019_RTR_000007: true
-  SRG_NET_000131_RTR_000083: true
-  SRG_NET_000205_RTR_000015: true
-  SRG_NET_000362_RTR_000111: true
-  SRG-NET_000362_RTR_000113: true
-  SRG-NET_000362_RTR_000115: true
-  SRG_NET_000364_RTR_000111: true
-  SRG_NET_000364_RTR_000112: true
+  SRG_NET_000019_RTR_000007: false
+  SRG_NET_000131_RTR_000083: false
+  SRG_NET_000205_RTR_000015: false
+  SRG_NET_000362_RTR_000111: false
+  SRG-NET_000362_RTR_000113: false
+  SRG-NET_000362_RTR_000115: false
+  SRG_NET_000364_RTR_000111: false
+  SRG_NET_000364_RTR_000112: false
+  SRG_NET_000512_RTR_000004: false
 
 #
 # The `external_interfaces` variable is used to specify the interfaces

@@ -1,0 +1,11 @@
+# DISA SRG:       SRG-NET-000205-RTR-000015
+# Severity:       medium
+# Rule ID:        SV-221116r999725_rule
+# Identifiers:    SV-111051, V-101947, CCI-000366
+
+- name: >
+    [SSV-221116r999725_rule] The Cisco MPLS switch must be configured to
+    have TTL Propagation disabled
+  cisco.nxos.nxos_config:
+    lines:
+      - no mpls ip propagate-ttl
