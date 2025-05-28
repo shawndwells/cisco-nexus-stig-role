@@ -47,3 +47,9 @@ external_interfaces:
 # Globally disable CDP on all interfaces
 #
 cisco_nxos_disable_cdp: true
+
+
+allowed_traffic:
+# permit tcp/etc <source> <destination> [port]
+# - 
+
