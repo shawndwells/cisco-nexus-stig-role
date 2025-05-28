@@ -4,8 +4,9 @@
 # Identifiers:    SV-110987, V-101883, CCI-002385
 
 - name: >
-    [SV-221084r999693_rule] Ensure 'no ip unreachables' is set on all external
-    interfaces
+    [SV-221084r999693_rule] The Cisco switch must be configured to
+    have Internet Control Message Protocol (ICMP) unreachable messages
+    disabled on all external interfaces
   cisco.nxos.nxos_config:
     lines:
       - no ip unreachables

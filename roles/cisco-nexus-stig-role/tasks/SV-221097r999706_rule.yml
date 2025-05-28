@@ -1,0 +1,25 @@
+# DISA SRG:       SRG-NET-000364-RTR-000111
+# Severity:       low
+# Rule ID:        SV-221097r999706_rule
+# Identifiers:    SV-111013, V-101909, CCI-002403
+
+- name: >
+    [SV-221097r999706_rule Step 1 of 2] The Cisco perimeter switch must be configured to
+    have Cisco Discovery Protocol (CDP) disabled on all external interfaces.
+    Disable CDP globally, if cisco_nxos_disable_cdp is set to true.
+  cisco.nxos.nxos_config:
+    lines:
+      - no cdp enable
+  when: cisco_nxos_disable_cdp | default(false) | bool
+
+- name: >
+    [SV-221097r999706_rule Step 2 of 2] The Cisco perimeter switch must be configured to
+    have Cisco Discovery Protocol (CDP) disabled on all external interfaces.
+    Disable CDP on all external interfaces if cisco_nxos_disable_cdp is NOT set to true.
+  cisco.nxos.nxos_config:
+    lines:
+      - no cdp enable
+    parents: "interface {{ item }}"
+  loop: "{{ external_interfaces }}"
+  when: not cisco_nxos_disable_cdp | default(false) | bool
+  

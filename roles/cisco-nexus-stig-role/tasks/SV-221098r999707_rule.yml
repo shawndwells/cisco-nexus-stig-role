@@ -1,0 +1,13 @@
+# DISA SRG:       SRG-NET-000364-RTR-000112
+# Severity:       medium
+# Rule ID:        SV-221098r999707_rule
+# Identifiers:    SV-111015, V-101911, CCI-002403
+
+- name: >
+    [SV-221098r999707_rule] The Cisco perimeter switch must be configured to
+    have Proxy ARP disabled on all external interfaces
+  cisco.nxos.nxos_config:
+    lines:
+      - no ip proxy-arp
+    parents: "interface {{ item }}"
+  loop: "{{ external_interfaces }}"
