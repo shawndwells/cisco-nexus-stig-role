@@ -3,14 +3,16 @@
 # Rule ID:        SV-221076r999685_rule
 # Identifiers:    SV-110971, V-101867, CCI-001414
 
-- name: "[SV-221076r999685_rule] Gather Port Status"
+- name: "[SV-221076r999685_rule Step 1 of 2] Gather Port Status"
   when: ansible_network_os == 'nxos'
   cisco.nxos.nxos_command:
     commands:
       - show interface status | json
   register: if_state
 
-- name: "[SV-221076r999685_rule] Set Description and Shutdown Unused Ports"
+- name: >
+    [SV-221076r999685_rule Step 2 of 2] Set Description and Shutdown Unused
+    Ports
   cisco.nxos.nxos_interfaces: 
     config:
       - name: '{{ item.interface }}'
