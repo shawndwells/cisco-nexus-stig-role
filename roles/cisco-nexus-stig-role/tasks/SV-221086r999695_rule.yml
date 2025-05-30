@@ -3,23 +3,23 @@
 # Rule ID:        SV-221086r999695_rule
 # Identifiers:    SV-110991, V-101887, CCI-000134
 
-# if allowed_traffic not updated, makes sure doesn't crash on undefined/ None
-- name: If allowed_traffic is undefined or None set empty list
+# if allowed_inbound_traffic not updated, makes sure doesn't crash on undefined/ None
+- name: If allowed_inbound_traffic is undefined or None set empty list
   set_fact:
-    allowed_traffic_sanitized: "{{ allowed_traffic | default([]) }}"
+    allowed_inbound_traffic_sanitized: "{{ allowed_inbound_traffic | default([]) }}"
 
-# sends warning if no allowed_traffic was added
-- name: Warn if allowed_traffic is empty
+# sends warning if no allowed_inbound_traffic was added
+- name: Warn if allowed_inbound_traffic is empty
   debug:
-    msg: "WARNING: allowed_traffic under vars/main.yml not defined. ACL will only contain 'deny ip any any log'"
-  when: allowed_traffic_sanitized | length == 0
+    msg: "WARNING: allowed_inbound_traffic under vars/main.yml not defined. ACL will only contain 'deny ip any any log'"
+  when: allowed_inbound_traffic_sanitized | length == 0
 
 # builds rule set list
 - name: Build full ACL rule set
   set_fact:
     acl_rules: >-
       {{
-        allowed_traffic_sanitized | zip(range(10, 10 + allowed_traffic_sanitized | length * 10, 10)) |
+        allowed_inbound_traffic_sanitized | zip(range(10, 10 + allowed_inbound_traffic_sanitized | length * 10, 10)) |
         map('reverse') |
         map('join', ' ') |
         list + ['90 deny ip any any log']
