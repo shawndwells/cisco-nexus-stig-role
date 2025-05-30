@@ -27,11 +27,12 @@ stig_rules:
   SRG_NET_000362_RTR_000111: false
   SRG_NET_000362_RTR_000113: false
   SRG_NET_000364_RTR_000113: false
-  SRG-NET_000362_RTR_000115: false
+  SRG_NET_000362_RTR_000115: false
   SRG_NET_000364_RTR_000111: false
   SRG_NET_000364_RTR_000112: false
   SRG_NET_000512_RTR_000004: false
   SRG_NET_000078_RTR_000001: false
+
 #
 # The `external_interfaces` variable is used to specify the interfaces
 # that are considered external and should be configured accordingly.
@@ -51,10 +52,8 @@ external_interfaces:
 cisco_nxos_disable_cdp: true
 
 
-allowed_traffic:
-# permit tcp/etc <source> <destination> [port]
-- permit tcp host 192.168.4.1 any eq bgp
-- permit tcp host 192.168.4.1 host 192.168.4.2 eq bgp
-- permit icmp host 192.168.4.1 host 192.168.4.2
-- permit icmp host 192.168.4.1 host 192.168.4.2 echo-reply
-- permit tcp any 192.168.4.0/24 eq www
+allowed_inbound_traffic:
+# Format: "- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
+
+allowed_outbound_traffic:
+# Format: "- permit|deny <protocol> <source> <destination> [eq <port>] [log]"

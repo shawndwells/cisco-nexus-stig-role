@@ -1,0 +1,51 @@
+# DISA SRG:       SRG-NET-000364-RTR-000113
+# Severity:       medium
+# Rule ID:        SV-221099r999708_rule
+# Identifiers:    SV-111017, V-101913, CCI-001097
+
+# [SV-221099r999708_rule] The Cisco perimeter switch must be configured to block all outbound management traffic.
+
+
+# if allowed_outbound_traffic not updated, makes sure doesn't crash on undefined/ None
+- name: If allowed_outbound_traffic is undefined or None set empty list
+  set_fact:
+    allowed_outbound_traffic_sanitized: "{{ allowed_outbound_traffic | default([]) }}"
+
+# sends warning if no allowed_outbound_traffic was added
+- name: Warn if allowed_outbound_traffic is empty
+  debug:
+    msg: "WARNING: allowed_outbound_traffic under vars/main.yml not defined."
+  when: allowed_outbound_traffic_sanitized | length == 0
+
+- name: "[SV-221099r999708_rule] Build outbound ACL rule set"
+  set_fact:
+    outbound_acl_rules: >-
+      {{
+        [
+          '10 deny tcp any any eq tacacs log',
+          '20 deny tcp any any eq 22 log',
+          '30 deny udp any any eq snmp log',
+          '40 deny udp any any eq snmptrap log',
+          '50 deny udp any any eq syslog log'
+        ]
+        +
+        (allowed_outbound_traffic_sanitized |
+          zip(range(60, 60 + allowed_outbound_traffic_sanitized | length * 10, 10)) |
+          map('reverse') |
+          map('join', ' ') |
+          list)
+        +
+        ['90 deny ip any any log']
+      }}
+
+- name: "[SV-221099r999708_rule] Configure outbound ACL EXTERNAL_ACL_OUTBOUND"
+  cisco.nxos.nxos_config:
+    lines: "{{ outbound_acl_rules }}"
+    parents: ip access-list EXTERNAL_ACL_OUTBOUND
+
+- name: "[SV-221099r999708_rule] Apply ACL to external interfaces"
+  cisco.nxos.nxos_config:
+    lines:
+      - ip access-group EXTERNAL_ACL_OUTBOUND out
+    parents: "interface {{ item }}"
+  loop: "{{ external_interfaces }}"
