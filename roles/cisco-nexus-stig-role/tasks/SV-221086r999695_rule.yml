@@ -3,6 +3,9 @@
 # Rule ID:        SV-221086r999695_rule
 # Identifiers:    SV-110991, V-101887, CCI-000134
 
+- name: Include utility task to find Layer 3 interfaces
+  ansible.builtin.include_tasks: utility/find_layer3.yml
+
 # if allowed_inbound_traffic not updated, makes sure doesn't crash on undefined/ None
 - name: If allowed_inbound_traffic is undefined or None set empty list
   set_fact:
@@ -30,21 +33,6 @@
   cisco.nxos.nxos_config:
     lines: "{{ acl_rules }}"
     parents: ip access-list EXTERNAL_ACL
-
-- name: Get running config
-  cisco.nxos.nxos_command:
-    commands:
-      - show running-config
-  register: runconfig
-
-- name: Extract L3 interfaces from config blocks
-  set_fact:
-    l3_interfaces: >-
-      {{
-        runconfig.stdout[0]
-        | regex_findall('interface (.+?)\\n(?: .+\\n)*? ip address')
-        | list
-      }}
 
 - name: Apply ACL to L3 interfaces
   cisco.nxos.nxos_config:
