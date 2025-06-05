@@ -14,7 +14,7 @@
 # sends warning if no allowed_outbound_traffic was added
 - name: Warn if allowed_outbound_traffic is empty
   debug:
-    msg: "WARNING: allowed_outbound_traffic under vars/main.yml not defined."
+    msg: "WARNING: allowed_outbound_traffic under vars/main.yml not defined, which will block all outbound traffic!"
   when: allowed_outbound_traffic_sanitized | length == 0
 
 - name: "[SV-221099r999708_rule] Build outbound ACL rule set"

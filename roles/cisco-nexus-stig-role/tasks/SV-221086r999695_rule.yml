@@ -14,7 +14,7 @@
 # sends warning if no allowed_inbound_traffic was added
 - name: Warn if allowed_inbound_traffic is empty
   debug:
-    msg: "WARNING: allowed_inbound_traffic under vars/main.yml not defined. ACL will only contain 'deny ip any any log'"
+    msg: "WARNING: allowed_inbound_traffic under vars/main.yml not defined. ACL will only contain 'deny ip any any log', which will block all incoming traffic!"
   when: allowed_inbound_traffic_sanitized | length == 0
 
 # builds rule set list
