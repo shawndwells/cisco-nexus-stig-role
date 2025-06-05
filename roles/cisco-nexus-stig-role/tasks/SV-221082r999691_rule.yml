@@ -13,7 +13,7 @@
     [SV-221082r999691_rule] Skip Gratuitous ARP rule if unsupported on this NX-OS version
   debug:
     msg: "Gratuitous ARP disable command not supported on this NX-OS version. Skipping."
-  when: ansible_net_version is version('7.0(3)I7(9)', '!=')
+  when: ansible_net_version is version('7.0(3)I7(9)', '==')
 
 - name: >
     [SV-221082r999691_rule] The Cisco switch must be configured to have
@@ -22,5 +22,5 @@
     lines:
       - no ip arp gratuitous request
     parents: "interface {{ item }}"
-  loop: "{{ l3_interfaces }}"
-  when: ansible_net_version is version('7.0(3)I7(9)', '==')
+  loop: "{{ external_interfaces }}"
+  when: ansible_net_version is version('7.0(3)I7(9)', '!=')
