@@ -3,11 +3,24 @@
 # Rule ID:        SV-221082r999691_rule
 # Identifiers:    SV-110983, V-101879, CCI-002385
 
+- name: Gather NX-OS facts
+  cisco.nxos.nxos_facts:
+
+- name: Include utility task to find Layer 3 interfaces
+  ansible.builtin.include_tasks: utility/find_layer3.yml
+
 - name: >
-    [SV-SV-221082r999691_rule] The Cisco switch must be configured to have
+    [SV-221082r999691_rule] Skip Gratuitous ARP rule if unsupported on this NX-OS version
+  debug:
+    msg: "Gratuitous ARP disable command not supported on this NX-OS version. Skipping."
+  when: ansible_net_version is version('7.0(3)I7(9)', '==')
+
+- name: >
+    [SV-221082r999691_rule] The Cisco switch must be configured to have
     Gratuitous ARP disabled on all external interfaces
   cisco.nxos.nxos_config:
     lines:
       - no ip arp gratuitous request
     parents: "interface {{ item }}"
   loop: "{{ external_interfaces }}"
+  when: ansible_net_version is version('7.0(3)I7(9)', '!=')

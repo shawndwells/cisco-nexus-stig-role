@@ -1,0 +1,7 @@
+  # roles/cisco-nexus-stig-role/tasks/utility/get_runningconfig.yml
+
+- name: Get running config
+  cisco.nxos.nxos_command:
+    commands:
+      - show running-config
+  register: runconfig

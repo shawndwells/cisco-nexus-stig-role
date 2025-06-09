@@ -1,0 +1,13 @@
+  # roles/cisco-nexus-stig-role/tasks/utility/findLayer3.yml
+
+- name: Include get_runconfig task
+  ansible.builtin.include_tasks: ../get_runningconfig.yml
+
+- name: Extract L3 interfaces from config blocks
+  set_fact:
+    l3_interfaces: >-
+      {{
+        runconfig.stdout[0]
+        | regex_findall('interface (.+?)\\n(?: .+\\n)*? ip address')
+        | list
+      }}
