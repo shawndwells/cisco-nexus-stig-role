@@ -4,6 +4,8 @@
 # Identifiers:    SV-111011, V-101907, CCI-002403
 
 # version 7. of NX-OS doesn't support `no lldp`
+
+# The Cisco perimeter switch must be configured to have Link Layer Discovery Protocol (LLDP) disabled on all external interfaces.
 - name: >
    [SV-221096r999705_rule Step 1 of 3] Check if LLDP is a supported feature
   cisco.nxos.nxos_command:
@@ -11,7 +13,7 @@
   register: lldp_features
 
 - name: >
-   [SV-221096r999705_rule Step 2 of 3] Determine if LLDP feature is supported/enabled
+   [SV-221096r999705_rule Step 2 of 3] Determine if LLDP feature is supported/ enabled
   set_fact:
     lldp_feature_supported: >-
       {{
@@ -29,7 +31,7 @@
   when: lldp_feature_supported
 
 - name: >
-    [SV-221096r999705_rule Step 3b of 3] LLDP not supported — skipping rule for compliance awareness
+    [SV-221096r999705_rule Step 3b of 3] LLDP not supported so skip for compliance awareness
   debug:
     msg: >
       [!] LLDP feature not supported or not present on this platform.
