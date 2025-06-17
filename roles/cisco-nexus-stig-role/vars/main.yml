@@ -59,6 +59,14 @@ allowed_inbound_traffic:
 allowed_outbound_traffic:
 # Format: "- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
 
+external_mgmt_acl_name: EXTERNAL_MGMT_ACL
+external_mgmt_allowed_subnet: "10.0.0.0/24"
+external_mgmt_allowed_tcp_ports:
+  - 22   # SSH
+  # - 443 # HTTPS (optional)
+ 
+external_mgmt_permit_icmp: false
+
 allowed_ipv6_ula_ranges:
   - "fc00::/7"
   - "fe80::/10"
