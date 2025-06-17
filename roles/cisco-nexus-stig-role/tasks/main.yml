@@ -44,3 +44,7 @@
 - name: "SRG-NET-000364-RTR-000113"
   ansible.builtin.include_tasks: SV-221099r999708_rule.yml
   when: stig_rules.SRG_NET_000364_RTR_000113 | bool | default(true)
+
+- name: "SRG-NET-000512-RTR-000013"
+  ansible.builtin.include_tasks: SV-237757r999761_rule.yml
+  when: stig_rules.SRG_NET_000512_RTR_000013 | bool | default(true)

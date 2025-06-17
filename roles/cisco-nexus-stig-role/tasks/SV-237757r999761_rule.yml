@@ -1,0 +1,35 @@
+# DISA SRG:       SRG-NET-000512-RTR-000013 
+# Severity:       medium
+# Rule ID:        SV-237757r999761_rule
+# Identifiers:    CCI-000366
+
+- name: Get running config
+  include_tasks: utility/get_runningconfig.yml
+
+- name: >
+   [SV-237757r999761_rule Step 1 of 3 ] Extract all configured IPv6 addresses
+  set_fact:
+    configured_ipv6_addresses: >-
+      {{
+        runconfig.stdout[0]
+        | regex_findall('ipv6 address ([\\da-fA-F:]+(?:/\\d+)?)')
+      }}
+
+- name: >
+   [SV-237757r999761_rule Step 2 of 3] Identify disallowed IPv6 addresses
+  set_fact:
+    disallowed_ipv6_addresses: >-
+      {{
+        configured_ipv6_addresses
+        | reject('ipaddr', allowed_ipv6_ula_ranges)
+        | list
+      }}
+
+- name: >
+   [SV-237757r999761_rule Step 3 of 3] Fail if any non-ULA IPv6 addresses are present
+  fail:
+    msg: >
+      [X] Invalid IPv6 address(es) found: {{ disallowed_ipv6_addresses }}.
+      These do not fall within the allowed ranges: {{ allowed_ipv6_ula_ranges }}.
+      Please remove or replace them with valid ULA or link-local IPv6 addresses.
+  when: disallowed_ipv6_addresses | length > 0
