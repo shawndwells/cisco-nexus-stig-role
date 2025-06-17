@@ -31,7 +31,9 @@ stig_rules:
   SRG_NET_000364_RTR_000111: false
   SRG_NET_000364_RTR_000112: false
   SRG_NET_000512_RTR_000004: false
-  SRG_NET_000078_RTR_000001: true
+  SRG_NET_000078_RTR_000001: false
+  SRG_NET_000512_RTR_000013: false
+
 
 #
 # The `external_interfaces` variable is used to specify the interfaces
@@ -56,3 +58,7 @@ allowed_inbound_traffic:
 
 allowed_outbound_traffic:
 # Format: "- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
+
+allowed_ipv6_ula_ranges:
+  - "fc00::/7"
+  - "fe80::/10"
