@@ -2,4 +2,4 @@
 ansible_python_interpreter="/usr/bin/env python"
 
 [ashburn_lab]
-192.168.4.252 ansible_user=admin ansible_password=1qaz2wsx!QAZ@WSX ansible_network_os=nxos ansible_connection=network_cli ansible_python_interpreter=/usr/bin/python3
+192.168.4.252 ansible_user=admin ansible_password=1qaz2wsx!QAZ@WSX ansible_network_os=cisco.nxos ansible_connection=network_cli ansible_ssh_common_args='-oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1'
