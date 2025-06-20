@@ -1,5 +1,5 @@
 [all:vars]
 ansible_python_interpreter="/usr/bin/env python"
 
-[ashburn-lab]
+[ashburn_lab]
 192.168.4.252 ansible_user=admin ansible_password=1qaz2wsx!QAZ@WSX ansible_network_os=nxos ansible_connection=network_cli ansible_python_interpreter=/usr/bin/python3

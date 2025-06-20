@@ -5,10 +5,8 @@
 #   Identifiers: SV-110961, V-101857, CCI-001368
 #   Title: The Cisco switch must enforce information flow control using ACLs.
 
-# Create ACL and apply to mgmt0 interface
-
 - name: "[SV-221071r999679_rule] Configure EXTERNAL_MGMT_ACL with required flow rules"
-  when: sv_221071r999679_rule_enabled | default(false)
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
   cisco.nxos.nxos_acl:
     config:
       - name: "{{ external_mgmt_acl_name }}"
@@ -40,12 +38,9 @@
               }
             }]
           }}
-  loop: "{{ external_mgmt_allowed_tcp_ports }}"
-  loop_control:
-    label: "{{ item }}"
 
 - name: "[SV-221071r999679_rule] Apply ACL to mgmt0 interface"
-  when: sv_221071r999679_rule_enabled | default(false)
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
   cisco.nxos.nxos_interfaces:
     config:
       - name: mgmt0
