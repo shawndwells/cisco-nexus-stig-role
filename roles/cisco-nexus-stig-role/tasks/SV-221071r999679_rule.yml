@@ -5,39 +5,46 @@
 #   Identifiers: SV-110961, V-101857, CCI-001368
 #   Title: The Cisco switch must enforce information flow control using ACLs.
 
-- name: "[SV-221071r999679_rule] Configure EXTERNAL_MGMT_ACL with required flow rules"
+- name: "[SV-221071r999679_rule] Generate ACL sequence"
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
+  set_fact:
+    external_acl_sequence: >-
+      {{
+        (
+          [
+            {'10': {
+              'action': 'permit',
+              'protocol': 'tcp',
+              'src': external_mgmt_allowed_subnet,
+              'dest': 'any',
+              'dport': item
+            }} for item in external_mgmt_allowed_tcp_ports
+          ]
+          + (
+            [{'20': {
+              'action': 'permit',
+              'protocol': 'icmp',
+              'src': 'any',
+              'dest': 'any'
+            }}] if external_mgmt_permit_icmp else []
+          )
+          + [
+            {'90': {
+              'action': 'deny',
+              'protocol': 'ip',
+              'src': 'any',
+              'dest': 'any'
+            }}
+          ]
+        )
+      }}
+
+- name: "[SV-221071r999679_rule] Configure EXTERNAL_MGMT_ACL"
   when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
   cisco.nxos.nxos_acl:
     config:
       - name: "{{ external_mgmt_acl_name }}"
-        sequence: >-
-          {{
-            [
-              {'10': {
-                'action': 'permit',
-                'protocol': 'tcp',
-                'src': external_mgmt_allowed_subnet,
-                'dest': 'any',
-                'dport': item
-              }} for item in external_mgmt_allowed_tcp_ports
-            ]
-            + (
-              [{'20': {
-                'action': 'permit',
-                'protocol': 'icmp',
-                'src': 'any',
-                'dest': 'any'
-              }}] if external_mgmt_permit_icmp else []
-            )
-            + [{
-              '90': {
-                'action': 'deny',
-                'protocol': 'ip',
-                'src': 'any',
-                'dest': 'any'
-              }
-            }]
-          }}
+        sequence: "{{ external_acl_sequence }}"
 
 - name: "[SV-221071r999679_rule] Apply ACL to mgmt0 interface"
   when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
