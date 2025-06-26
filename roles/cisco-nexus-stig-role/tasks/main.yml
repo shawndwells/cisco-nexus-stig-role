@@ -56,3 +56,7 @@
 - name: "SRG-NET-000362-RTR-000112"
   ansible.builtin.include_tasks: SV-221083r999692_rule.yml
   when: stig_rules.SRG_NET_000362_RTR_000112 | bool | default(true)
+
+- name: "SV_21101r999710_rule"                                       # SRG NET id name needed
+  ansible.builtin.include_tasks: SV-221101r999710_rule.yml
+  when: stig_rules.SV_21101r999710_rule | bool | default(true)

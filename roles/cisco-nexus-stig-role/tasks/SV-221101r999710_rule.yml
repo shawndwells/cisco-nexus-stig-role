@@ -1,0 +1,31 @@
+# DISA SRG:       ?                                  # SRG NET id name needed
+# Severity:       low
+# Rule ID:        SV-221101r999710_rule
+# Identifiers:    SV-111021, V-101917, CCI-002385
+
+# [SV-221101r999710_rule] The Cisco BGP switch must be configured to check whether a single-hop eBGP peer is directly connected.
+
+# On v7.x `show feature | include bgp` => `bgp 1 disabled`
+
+- name: >
+   [SV-221101r999710_rule Step 1a of 2] Check if BGP is a supported feature
+  cisco.nxos.nxos_command:
+    commands: "show feature"
+  register: bgp_features
+
+- name: >
+   [SV-221101r999710_rule Step 1b of 2] Determine if BGP is a supported feature
+  set_fact:
+   bgp_feature_supported: >-
+    {{
+      bgp_features.stdout[0]
+      | regex_search('^\\s*bgp\\s+.*(enabled|disabled)', ignorecase=True)
+      is not none
+    }}
+
+- name: >
+    [SV-21101r999710_rule Step 2 of 2] Skip if unsupported
+  debug:
+   msg: >
+    [!] BGP feature not supported or present on this version. Skipping...
+  when: not bgp_feature_supported
