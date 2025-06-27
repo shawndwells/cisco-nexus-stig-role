@@ -5,52 +5,65 @@
 #   Identifiers: SV-110961, V-101857, CCI-001368
 #   Title: The Cisco switch must enforce information flow control using ACLs.
 
-- name: "[SV-221071r999679_rule] Generate ACL sequence"
-  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
+- name: "[SV-221071r999679_rule] Build base ACL sequence"
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool
   set_fact:
-    external_acl_sequence: >-
-      {{
-        (
-          [
-            {'10': {
-              'action': 'permit',
-              'protocol': 'tcp',
-              'src': external_mgmt_allowed_subnet,
-              'dest': 'any',
-              'dport': item
-            }} for item in external_mgmt_allowed_tcp_ports
-          ]
-          + (
-            [{'20': {
-              'action': 'permit',
-              'protocol': 'icmp',
-              'src': 'any',
-              'dest': 'any'
-            }}] if external_mgmt_permit_icmp else []
-          )
-          + [
-            {'90': {
-              'action': 'deny',
-              'protocol': 'ip',
-              'src': 'any',
-              'dest': 'any'
-            }}
-          ]
-        )
-      }}
+    external_acl_sequence: []
+
+- name: "[SV-221071r999679_rule] Add TCP permit rules"
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool
+  set_fact:
+    external_acl_sequence: "{{ external_acl_sequence + [ {
+      'seq': 10 + index * 10,
+      'action': 'permit',
+      'protocol': 'tcp',
+      'src': external_mgmt_allowed_subnet,
+      'dest': 'any',
+      'dport': item
+    } ] }}"
+  loop: "{{ external_mgmt_allowed_tcp_ports }}"
+  loop_control:
+    index_var: index
+
+- name: "[SV-221071r999679_rule] Add ICMP rule if enabled"
+  when:
+    - stig_rules.SRG_NET_000018_RTR_000001 | bool
+    - external_mgmt_permit_icmp | bool
+  set_fact:
+    external_acl_sequence: "{{ external_acl_sequence + [ {
+      'seq': 80,
+      'action': 'permit',
+      'protocol': 'icmp',
+      'src': 'any',
+      'dest': 'any'
+    } ] }}"
+
+- name: "[SV-221071r999679_rule] Add deny-all rule"
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool
+  set_fact:
+    external_acl_sequence: "{{ external_acl_sequence + [ {
+      'seq': 90,
+      'action': 'deny',
+      'protocol': 'ip',
+      'src': 'any',
+      'dest': 'any'
+    } ] }}"
 
 - name: "[SV-221071r999679_rule] Configure EXTERNAL_MGMT_ACL"
-  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
-  cisco.nxos.nxos_acl:
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool
+  cisco.nxos.nxos_acls:
     config:
-      - name: "{{ external_mgmt_acl_name }}"
-        sequence: "{{ external_acl_sequence }}"
+      afi: ipv4
+      acls:
+        - name: "{{ external_mgmt_acl_name }}"
+          aces: "{{ external_acl_sequence }}"
 
 - name: "[SV-221071r999679_rule] Apply ACL to mgmt0 interface"
-  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
-  cisco.nxos.nxos_interfaces:
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool
+  cisco.nxos.nxos_acl_interfaces:
     config:
       - name: mgmt0
         ipv4:
           access_group:
             in: "{{ external_mgmt_acl_name }}"
+    state: merged

@@ -21,7 +21,7 @@ ntp_servers:
 # management of compliance requirements within the Ansible role.
 #
 stig_rules:
-  SRG_NET_000018_RTR_000001: false
+  SRG_NET_000018_RTR_000001: true
   SRG_NET_000019_RTR_000007: false
   SRG_NET_000131_RTR_000083: false
   SRG_NET_000205_RTR_000015: false
@@ -63,9 +63,8 @@ allowed_outbound_traffic:
 external_mgmt_acl_name: EXTERNAL_MGMT_ACL
 external_mgmt_allowed_subnet: "10.0.0.0/24"
 external_mgmt_allowed_tcp_ports:
-  - 22   # SSH
-  # - 443 # HTTPS (optional)
- 
+  - 22   
+  - 443  
 external_mgmt_permit_icmp: false
 
 allowed_ipv6_ula_ranges:
