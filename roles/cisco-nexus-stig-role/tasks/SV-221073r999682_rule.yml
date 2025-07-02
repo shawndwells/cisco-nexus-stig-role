@@ -1,0 +1,24 @@
+- name: "[SV-221073r999682_rule] Configure key chain with keys not exceeding 180 days"
+  cisco.nxos.nxos_keychain:
+    config:
+      - name: "{{ ospf_keychain_name }}"
+        keys:
+          - key_id: 1
+            key_string: "{{ ospf_key_1_string }}"
+            send_lifetime:
+              start_time: "00:00:00 June 30 2025"
+              end_time: "23:59:59 Dec 27 2025"
+            accept_lifetime:
+              start_time: "00:00:00 Jun 30 2025"
+              end_time: "01:05:00 Dec 28 2025"
+          - key_id: 2
+            key_string: "{{ ospf_key_2_string }}"
+            send_lifetime:
+              start_time: "00:00:00 Dec 28 2025"
+              end_time: "23:59:59 Jun 25 2025"
+            accept_lifetime:
+              start_time: "23:55:00 Dec 27 2025"
+              end_time: "01:05:00 Jun 26 2026"
+    state: merged
+  when: stig_rules.SRG_NET_000230_RTR_000003 | bool
+  #test
