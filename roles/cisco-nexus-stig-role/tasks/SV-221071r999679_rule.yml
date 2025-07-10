@@ -24,7 +24,6 @@
       loop_control:
         label: "{{ item.name }}"
 
-# COMMENTED OUT FOR NOW: Save this when you're ready to apply ACLs
     - name: "[SV-221071] Apply ACLs to interfaces"
       cisco.nxos.nxos_acl_interfaces:
         config:
