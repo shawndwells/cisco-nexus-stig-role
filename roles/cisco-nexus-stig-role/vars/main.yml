@@ -21,7 +21,7 @@ ntp_servers:
 # management of compliance requirements within the Ansible role.
 #
 stig_rules:
-  SRG_NET_000018_RTR_000001: false
+  SRG_NET_000018_RTR_000001: true
   SRG_NET_000019_RTR_000007: false
   SRG_NET_000131_RTR_000083: false
   SRG_NET_000205_RTR_000015: false
@@ -57,17 +57,17 @@ cisco_nxos_disable_cdp: true
 
 
 allowed_inbound_traffic:
-# Format: "- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
+- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
 
 allowed_outbound_traffic:
-# Format: "- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
+- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
 
 external_mgmt_acl_name: EXTERNAL_MGMT_ACL
-external_mgmt_allowed_subnet: "10.0.0.0/24"
+external_mgmt_allowed_subnet: "10.0.0.0 0.0.0.255"
 external_mgmt_allowed_tcp_ports:
   - 22   
   - 443  
-external_mgmt_permit_icmp: false
+external_mgmt_permit_icmp: true
 
 #
 ospf_keychain_name: OSPF_KEY
@@ -77,3 +77,188 @@ ospf_key_2_string: kxxxxxxxxxxxxx
 allowed_ipv6_ula_ranges:
   - "fc00::/7"
   - "fe80::/10"
+
+  #
+# ACL definitions for general flow control (used in VLANs, interfaces)
+#
+acl_definitions:
+  - name: FILTER_SERVER_TRAFFIC
+    direction: in
+    interface: Ethernet1/30
+    afi: ipv4
+    rules:
+      - sequence: 10
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.12.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "515"
+      - sequence: 20
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.12.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "631"
+      - sequence: 30
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.12.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "9100"
+      - sequence: 40
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.13.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "1433"
+      - sequence: 50
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.13.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "1434"
+      - sequence: 60
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.13.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "4022"
+      - sequence: 70
+        grant: permit
+        protocol: icmp
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 80
+        grant: permit
+        protocol: ospf
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 90
+        grant: deny
+        protocol: ip
+        source:
+          any: true
+        destination:
+          any: true
+
+  - name: FILTER_PRINTER_VLAN
+    direction: out
+    interface: Vlan12
+    afi: ipv4
+    rules:
+      - sequence: 10
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "515"
+      - sequence: 20
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "631"
+      - sequence: 30
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "9100"
+      - sequence: 40
+        grant: permit
+        protocol: icmp
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 50
+        grant: deny
+        protocol: ip
+        source:
+          any: true
+        destination:
+          any: true
+
+  - name: FILTER_SQL_VLAN
+    direction: out
+    interface: Vlan13
+    afi: ipv4
+    rules:
+      - sequence: 10
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "1433"
+      - sequence: 20
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "1434"
+      - sequence: 30
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "4033"
+      - sequence: 40
+        grant: permit
+        protocol: icmp
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 50
+        grant: deny
+        protocol: ip
+        source:
+          any: true
+        destination:
+          any: true
