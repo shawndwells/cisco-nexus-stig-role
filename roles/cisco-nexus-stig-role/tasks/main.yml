@@ -13,6 +13,10 @@
   ansible.builtin.include_tasks: SV-221078r999687_rule.yml
   when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
 
+- name: "SRG-NET-000168-RTR-000077"
+  ansible.builtin.include_tasks: SV-221074r999683_rule.yml
+  when: stig_rules.SRG_NET_000168_RTR_000077 | bool | default(true)
+
 - name: "SRG-NET-000205-RTR-000015"
   ansible.builtin.include_tasks: SV-221095r999704_rule.yml
   when: stig_rules.SRG_NET_000205_RTR_000015 | bool | default(true)

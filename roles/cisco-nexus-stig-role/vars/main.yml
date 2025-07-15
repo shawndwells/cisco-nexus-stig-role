@@ -24,6 +24,7 @@ stig_rules:
   SRG_NET_000018_RTR_000001: false
   SRG_NET_000019_RTR_000007: false
   SRG_NET_000131_RTR_000083: false
+  SRG_NET_000168_RTR_000077: true
   SRG_NET_000205_RTR_000015: false
   SRG_NET_000230_RTR_000003: false
   SRG_NET_000362_RTR_000111: false
@@ -69,10 +70,31 @@ external_mgmt_allowed_tcp_ports:
   - 443  
 external_mgmt_permit_icmp: true
 
-#
-ospf_keychain_name: OSPF_KEY
-ospf_key_1_string: xxxxxxxxxxxx
-ospf_key_2_string: kxxxxxxxxxxxxx
+# Toggle for STIG rule SV-221074r999683 enforcement
+SV_221074r999683_rule_enabled: true
+
+# MD5 authentication keys and settings for routing protocols (placeholders)
+ospf_md5_key_id: 1
+ospf_md5_password: "CHANGEME"        # OSPF message-digest password (MD5)
+ospf_interfaces: []                 # List of interfaces running OSPF (e.g., ["Ethernet1/2", "Vlan10", ...])
+ospf_process_id: ""                 # OSPF process ID/tag (if empty, will be auto-detected)
+
+eigrp_instance: ""                  # EIGRP instance tag or AS number (if empty, will detect from config)
+eigrp_md5_password: "CHANGEME"      # EIGRP MD5 auth key (should correspond to a key-chain configured)
+eigrp_interfaces: []                # Interfaces running EIGRP (e.g., ["Ethernet1/3"])
+
+isis_instance: ""                   # IS-IS process tag (if empty, will detect if "router isis <tag>" is present)
+isis_levels: [1, 2]                 # IS-IS levels to apply MD5 (Level-1 and/or Level-2)
+isis_md5_password: "CHANGEME"       # IS-IS authentication key (if using key-chain, ensure key-chain is defined)
+
+bgp_as: ""                          # BGP Autonomous System number (if empty, will detect from running config)
+bgp_neighbors: []                   # List of BGP neighbor IPs to configure MD5 authentication
+bgp_md5_password: "CHANGEME"        # BGP neighbor password (MD5 shared secret)
+
+rip_instance: ""                    # RIP instance tag (if empty, will detect "router rip <tag>" if present)
+rip_md5_password: "CHANGEME"        # RIP authentication key (if using key-chain, ensure it's defined)
+rip_interfaces: []                  # Interfaces running RIP
+
 
 allowed_ipv6_ula_ranges:
   - "fc00::/7"
