@@ -1,4 +1,9 @@
-- name: >
+# DISA STIG:
+#   SRG-NET-000230-RTR-000003
+#   Severity: medium
+#   Rule ID: SV-221073r999682_rule
+#   Identifiers: SV-110965, V-101861, CCI-000366, CCI-002205
+#   Title: The Cisco switch must be configured to use keys with a duration not exceeding 180 days for authenticating routing protocol messages.
     [SV-221073r999682_rule] Configure routing protocol key chain with <180-day lifetimes
   cisco.nxos.nxos_config:
     lines:
