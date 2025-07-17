@@ -1,0 +1,39 @@
+# DISA STIG:
+#   SRG-NET-000018-RTR-000001
+#   Severity: medium
+#   Rule ID: SV-221071r999679_rule
+#   Identifiers: SV-110961, V-101857, CCI-001368
+#   Title: The Cisco switch must enforce information flow control using ACLs.
+
+- name: "[SV-221071] Build ACLs from acl_definitions"
+  when: stig_rules['SRG_NET_000018_RTR_000001']
+  block:
+
+    - name: "[SV-221071] Create ACL definitions"
+      cisco.nxos.nxos_acls:
+        config: >
+          [{
+            "afi": "{{ item.afi }}",
+            "acls": [{
+              "name": "{{ item.name }}",
+              "aces": {{ item.rules | to_json }}
+            }]
+          }]
+        state: merged
+      loop: "{{ acl_definitions }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: "[SV-221071] Apply ACLs to interfaces"
+      cisco.nxos.nxos_acl_interfaces:
+        config:
+          - name: "{{ item.interface }}"
+            access_groups:
+              - afi: "{{ item.afi }}"
+                acls:
+                  - name: "{{ item.name }}"
+                    direction: "{{ item.direction }}"
+        state: merged
+      loop: "{{ acl_definitions }}"
+      loop_control:
+        label: "{{ item.name }}"

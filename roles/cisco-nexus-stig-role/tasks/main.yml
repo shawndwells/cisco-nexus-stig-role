@@ -1,6 +1,10 @@
 ---
 # tasks file for cisco-nexus-stig
 
+- name: "SRG-NET-000018-RTR-000001"
+  ansible.builtin.include_tasks: SV-221071r999679_rule.yml
+  when: stig_rules.SRG_NET_000018_RTR_000001 | bool | default(true)
+  
 - name: "SRG-NET-000019-RTR-000007"
   ansible.builtin.include_tasks: SV-221076r999685_rule.yml
   when: stig_rules.SRG_NET_000019_RTR_000007 | bool | default(true)
@@ -9,9 +13,17 @@
   ansible.builtin.include_tasks: SV-221078r999687_rule.yml
   when: stig_rules.SRG_NET_000131_RTR_000083 | bool | default(true)
 
+- name: "SRG-NET-000168-RTR-000077"
+  ansible.builtin.include_tasks: SV-221074r999683_rule.yml
+  when: stig_rules.SRG_NET_000168_RTR_000077 | bool | default(true)
+
 - name: "SRG-NET-000205-RTR-000015"
   ansible.builtin.include_tasks: SV-221095r999704_rule.yml
   when: stig_rules.SRG_NET_000205_RTR_000015 | bool | default(true)
+
+- name: "SRG-NET-000230-RTR-000003"
+  ansible.builtin.include_tasks: SV-221073r999682_rule.yml
+  when: stig_rules.SRG_NET_000230_RTR_000003 | bool | default(true)
 
 - name: "SRG-NET-000362-RTR-000111"
   ansible.builtin.include_tasks: SV-221082r999691_rule.yml
