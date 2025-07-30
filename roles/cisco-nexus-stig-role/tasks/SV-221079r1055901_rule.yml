@@ -1,0 +1,12 @@
+# DISA SRG:       SRG-NET-000362-RTR-000110
+# Rule ID:        SV-221079r1055901_rule
+# Severity:       medium
+# Identifiers:    SV-110977, V-101873, CCI-002385, CCI-004866, CCI-001097
+
+# The Cisco switch must be configured to protect against or limit the effects of denial-of-service (DoS) attacks by employing control plane protection.
+
+# !! TO-DO !!
+# Configure the required ACLs (as per STIG remediation)
+# Create class-maps for traffic classes
+# Build the policy-map with policing rates
+# Apply the policy to the control-plane
