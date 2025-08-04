@@ -25,8 +25,9 @@ stig_rules:
   SRG_NET_000019_RTR_000007: false
   SRG_NET_000131_RTR_000083: false
   SRG_NET_000168_RTR_000077: false
+  SRG_NET_000168_RTR_000077: false
   SRG_NET_000205_RTR_000015: false
-  SRG_NET_000230_RTR_000003: false
+  SRG_NET_000230_RTR_000003: true
   SRG_NET_000362_RTR_000111: false
   SRG_NET_000362_RTR_000113: false
   SRG_NET_000364_RTR_000113: false
@@ -285,5 +286,24 @@ acl_definitions:
         destination:
           any: true
 
+# -------------------------------------------------------------------
+# STIG Rule: SV-221073r999682 - Enforce 180-day routing key durations
+# -------------------------------------------------------------------
+ospf_auth_keys:
+  - interface: Ethernet1/1
+    key_id: 1
+    key_string: "071739545611011d0f0a13141c"
+    accept_start: "00:00:00 Aug 4 2025"
+    accept_end:   "01:05:00 Nov 30 2025"
+    send_start:   "00:00:00 Aug 4 2025"
+    send_end:     "23:59:59 Nov 29 2025"
+  - interface: Ethernet1/2
+    key_id: 2
+    key_string: "071c244f5c0c0d0e120b59"
+    accept_start: "23:55:00 Nov 29 2025"
+    accept_end:   "01:05:00 Mar 1 2026"
+    send_start:   "00:00:00 Nov 30 2025"
+    send_end:     "23:59:59 Feb 28 2026"
 
-# comment
+
+

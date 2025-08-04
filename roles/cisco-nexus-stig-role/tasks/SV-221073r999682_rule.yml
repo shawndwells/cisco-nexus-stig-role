@@ -5,20 +5,41 @@
 #   Identifiers: SV-110965, V-101861, CCI-000366, CCI-002205
 #   Title: The Cisco switch must be configured to use keys with a duration not exceeding 180 days for authenticating routing protocol messages.
 
+<<<<<<< HEAD
 - name: >
     [SV-221073r999682_rule] Configure routing protocol key chain with <180-day lifetimes
+=======
+---
+- name: "[LOG] Resetting OSPF_KEY chain (if exists)"
+  debug:
+    msg: "Removing existing key chain OSPF_KEY to ensure a clean config state."
+
+- name: "[STIG] Remove existing OSPF_KEY chain"
+>>>>>>> c4a6530 (Add STIG rule SV-221073r999682)
   cisco.nxos.nxos_config:
     lines:
-      - key 1
-      - key-string 071739545611011d0f0a13141c
-      - send-lifetime 00:00:00 Jun 30 2025 23:59:59 Dec 27 2025
-      - accept-lifetime 00:00:00 Jun 30 2025 01:05:00 Dec 28 2025
-      - key 2
-      - key-string 070C285F4D06
-      - send-lifetime 00:00:00 Dec 28 2025 23:59:59 Jun 25 2026
-      - accept-lifetime 23:55:00 Dec 27 2025 01:05:00 Jun 26 2026
-    parents:
-      - key chain OSPF_KEY
+      - "no key chain OSPF_KEY"
     match: line
     replace: line
-    save_when: changed
+    save_when: never
+
+- name: "[LOG] Creating OSPF_KEY chain with keys from ospf_auth_keys"
+  debug:
+    msg: "Applying MD5 keys defined in vars for OSPF authentication."
+
+- name: "[STIG] Configure MD5 auth key chain for OSPF (key lifetime < 180 days)"
+  cisco.nxos.nxos_config:
+    parents: ["key chain OSPF_KEY"]
+    lines:
+      - "key 1"
+      - "key-string 071739545611011d0f0a13141c"
+      - "accept-lifetime 00:00:00 Aug 4 2025 01:05:00 Nov 30 2025"
+      - "send-lifetime 00:00:00 Aug 4 2025 23:59:59 Nov 29 2025"
+      - "key 2"
+      - "key-string 071c244f5c0c0d0e120b59"
+      - "accept-lifetime 23:55:00 Nov 29 2025 01:05:00 Mar 1 2026"
+      - "send-lifetime 00:00:00 Nov 30 2025 23:59:59 Feb 28 2026"
+    match: line
+    replace: line
+
+
