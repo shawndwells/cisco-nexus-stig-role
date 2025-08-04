@@ -1,0 +1,167 @@
+# DISA STIG:
+#   SRG-NET-000168-RTR-000077
+#   Severity: medium
+#   Rule ID: SV-221074r999683_rule
+#   Identifiers: SV-110967, V-101863, CCI-000803
+#   Title: The Cisco switch must be configured to use encryption for routing protocol authentication.
+
+- name: "CHECK | Determine if OSPF is configured"
+  cisco.nxos.nxos_command:
+    commands: "show running-config | include '^router ospf'"
+  register: ospf_config
+  tags: [routing, ospf, audit]  # Tagged for easy play filtering (audit compliance)
+
+- name: "SET FACT | Extract OSPF process ID from running config"
+  set_fact:
+    ospf_process_id: "{{ ospf_config.stdout[0].split()[2] if ospf_config.stdout[0] is defined else '' }}"
+  when: ospf_config.stdout[0] is defined and ospf_config.stdout[0] != ""
+  vars:
+    # Example "router ospf 100" -> split into ["router","ospf","100"]
+    # This captures '100' as the process ID or tag.
+    _ospf_line: "{{ ospf_config.stdout[0] | default('') }}"
+
+- name: "CONFIGURE | Enable MD5 authentication on OSPF interfaces"
+  cisco.nxos.nxos_config:
+    parents: "interface {{ item }}"
+    lines:
+      - "ip ospf authentication message-digest"
+      - "ip ospf message-digest-key {{ ospf_md5_key_id }} md5 {{ ospf_md5_password }}"
+  loop: "{{ ospf_interfaces }}"
+  when: ospf_config.stdout[0] != ""
+  tags: [routing, ospf, stig]
+
+- name: "CHECK | Determine if EIGRP is configured"
+  cisco.nxos.nxos_command:
+    commands: "show running-config | include '^router eigrp'"
+  register: eigrp_config
+  tags: [routing, eigrp, audit]
+
+- name: "SET FACT | Extract EIGRP instance tag from running config"
+  set_fact:
+    eigrp_instance: "{{ eigrp_config.stdout[0].split()[2] if eigrp_config.stdout[0] is defined else '' }}"
+  when: eigrp_config.stdout[0] is defined and eigrp_config.stdout[0] != ""
+
+- name: "CONFIGURE | Enable MD5 authentication on EIGRP interfaces"
+  cisco.nxos.nxos_config:
+    parents: "interface {{ item }}"
+    lines:
+      - "ip authentication key-chain eigrp {{ eigrp_instance or '1' }} MD5-KEYCHAIN"
+      - "ip authentication mode eigrp {{ eigrp_instance or '1' }} md5"
+  loop: "{{ eigrp_interfaces }}"
+  when: eigrp_config.stdout[0] != ""
+  tags: [routing, eigrp, stig]
+  vars:
+    # 'MD5-KEYCHAIN' is a placeholder name. Ensure a key-chain with this name and the given password exists.
+    # Alternatively, if not using key-chains, NX-OS could accept direct keys via a single command mode (not typical; key-chain is recommended).
+    eigrp_instance: "{{ eigrp_instance | default('1') }}"
+
+- name: "CONFIGURE | Define EIGRP MD5 key chain (if not already defined)"
+  cisco.nxos.nxos_config:
+    lines:
+      - "key chain MD5-KEYCHAIN"
+      - "  key 1"
+      - "    key-string {{ eigrp_md5_password }}"
+  when: eigrp_config.stdout[0] != "" and eigrp_interfaces | length > 0
+  tags: [routing, eigrp, stig]
+  # Note: This defines a simple key chain named "MD5-KEYCHAIN" with one key. In production, key chains and keys would be defined elsewhere or with more complexity (e.g., multiple keys, lifetimes).
+
+- name: "CHECK | Determine if IS-IS is configured"
+  cisco.nxos.nxos_command:
+    commands: "show running-config | include '^router isis'"
+  register: isis_config
+  tags: [routing, isis, audit]
+
+- name: "SET FACT | Extract IS-IS process tag from running config"
+  set_fact:
+    isis_instance: "{{ isis_config.stdout[0].split()[2] if isis_config.stdout[0] is defined else '' }}"
+  when: isis_config.stdout[0] is defined and isis_config.stdout[0] != ""
+
+- name: "CONFIGURE | Enable MD5 authentication for IS-IS process"
+  cisco.nxos.nxos_config:
+    parents: "router isis {{ isis_instance }}"
+    lines:
+      - "authentication-type md5 level-1"
+      - "authentication-type md5 level-2"
+      - "authentication key-chain MD5-ISIS-KEY level-1"
+      - "authentication key-chain MD5-ISIS-KEY level-2"
+  when: isis_config.stdout[0] != ""
+  tags: [routing, isis, stig]
+  # The above commands globally require MD5 for Level-1 and Level-2 and reference a key-chain "MD5-ISIS-KEY".
+
+- name: "CONFIGURE | Define IS-IS MD5 key chain (if not defined)"
+  cisco.nxos.nxos_config:
+    lines:
+      - "key chain MD5-ISIS-KEY"
+      - "  key 1"
+      - "    key-string {{ isis_md5_password }}"
+  when: isis_config.stdout[0] != ""
+  tags: [routing, isis, stig]
+
+- name: "CONFIGURE | Enable IS-IS interface-level MD5 authentication"
+  cisco.nxos.nxos_config:
+    parents: "interface {{ item }}"
+    lines:
+      - "isis authentication-type md5 level-{{ level }}"
+      - "isis authentication key-chain MD5-ISIS-KEY level-{{ level }}"
+  loop: "{{ isis_levels }}"
+  loop_control:
+    loop_var: level
+  when: isis_config.stdout[0] != ""
+  tags: [routing, isis, stig]
+  # Note: The above will apply MD5 authentication on each interface running IS-IS for both level-1 and level-2 (if those levels exist on that interface).
+  # In NX-OS, interfaces running IS-IS should be identified and configured accordingly. 
+  # For simplicity, this applies globally to all interfaces with IS-IS (which NX-OS treats as having been added via "ip router isis").
+
+- name: "CHECK | Determine if BGP is configured"
+  cisco.nxos.nxos_command:
+    commands: "show running-config | include '^router bgp'"
+  register: bgp_config
+  tags: [routing, bgp, audit]
+
+- name: "SET FACT | Extract BGP AS number from running config"
+  set_fact:
+    bgp_as: "{{ bgp_config.stdout[0].split()[2] if bgp_config.stdout[0] is defined else '' }}"
+  when: bgp_config.stdout[0] is defined and bgp_config.stdout[0] != ""
+
+- name: "CONFIGURE | Enable MD5 authentication on BGP neighbors (nxos_config)"
+  cisco.nxos.nxos_config:
+    lines:
+      - "router bgp {{ bgp_as }}"
+      - "neighbor {{ item }} password {{ bgp_md5_password }}"
+  loop: "{{ bgp_neighbors }}"
+  when:
+    - bgp_neighbors is defined
+    - bgp_neighbors | length > 0
+    - SV_221074r999683_rule_enabled
+  # For each listed neighbor IP, this sets the MD5 password. Ensure the same password is configured on the neighbor's side.
+  # If no neighbors are listed, skip this step or consider dynamically discovering neighbors via facts.
+
+- name: "CHECK | Determine if RIP is configured"
+  cisco.nxos.nxos_command:
+    commands: "show running-config | include '^router rip'"
+  register: rip_config
+  tags: [routing, rip, audit]
+
+- name: "SET FACT | Extract RIP instance tag from running config"
+  set_fact:
+    rip_instance: "{{ rip_config.stdout[0].split()[2] if rip_config.stdout[0] is defined else '' }}"
+  when: rip_config.stdout[0] is defined and rip_config.stdout[0] != ""
+
+- name: "CONFIGURE | Enable MD5 authentication on RIP interfaces"
+  cisco.nxos.nxos_config:
+    parents: "interface {{ item }}"
+    lines:
+      - "ip rip authentication mode md5"
+      - "ip rip authentication key-chain MD5-RIP-KEY"
+  loop: "{{ rip_interfaces }}"
+  when: rip_config.stdout[0] != ""
+  tags: [routing, rip, stig]
+
+- name: "CONFIGURE | Define RIP MD5 key chain (if not defined)"
+  cisco.nxos.nxos_config:
+    lines:
+      - "key chain MD5-RIP-KEY"
+      - "  key 1"
+      - "    key-string {{ rip_md5_password }}"
+  when: rip_config.stdout[0] != "" and rip_interfaces | length > 0
+  tags: [routing, rip, stig]

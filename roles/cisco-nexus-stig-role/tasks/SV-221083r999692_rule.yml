@@ -1,0 +1,42 @@
+# DISA SRG:       SRG-NET-000362-RTR-000112
+# Severity:       low
+# Rule ID:        SV-221083r999692_rule
+# Identifiers:    SV-110985, V-101881, CCI-002385
+
+# NX-OS v7.x does not support the `no ip directed-broadcast` command
+# NX-OS v8.x+ does but it is (or should be) disabled by default
+# The rule checks to see if the command is available, but otherwise just logs for compliance
+
+- name: >
+    [SV-221083r999692_rule Step 1 of 3] Check if 'ip directed-broadcast' is supported (part 1)
+  cisco.nxos.nxos_command:
+    commands: "show running-config interface {{ external_interfaces[0] }}"
+  register: directed_broadcast_check
+  when: external_interfaces | length > 0
+
+- name: >
+    [SV-221083r999692_rule Step 2 of 3] Check if 'ip directed-broadcast' is supported (part 2)
+  set_fact:
+    directed_broadcast_supported: >-
+      {{
+        directed_broadcast_check.stdout[0]
+        | regex_search('ip directed-broadcast', ignorecase=True) is not none
+      }}
+  when: directed_broadcast_check is defined and directed_broadcast_check.stdout[0] is defined
+
+- name: >
+    [SV-221083r999692_rule Step 3a of 3] (Supported) Disable directed broadcast on all external interfaces
+  cisco.nxos.nxos_config:
+    lines:
+      - no ip directed-broadcast
+    parents: "interface {{ item }}"
+  loop: "{{ external_interfaces }}"
+  when: directed_broadcast_supported
+
+- name: >
+    [SV-221083r999692_rule Step 3b of 3] (Not supported) Skip for compliance awareness
+  debug:
+    msg: >
+      [!] 'ip directed-broadcast' command not supported or present on this NX-OS version.
+      Skipping SRG-NET-000362-RTR-000112 (Disable IP directed broadcast on all interfaces).
+  when: not directed_broadcast_supported

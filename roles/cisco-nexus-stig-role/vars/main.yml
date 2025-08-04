@@ -21,15 +21,24 @@ ntp_servers:
 # management of compliance requirements within the Ansible role.
 #
 stig_rules:
+  SRG_NET_000018_RTR_000001: false
   SRG_NET_000019_RTR_000007: false
   SRG_NET_000131_RTR_000083: false
+  SRG_NET_000168_RTR_000077: false
+  SRG_NET_000168_RTR_000077: false
   SRG_NET_000205_RTR_000015: false
+  SRG_NET_000230_RTR_000003: false
   SRG_NET_000362_RTR_000111: false
-  SRG-NET_000362_RTR_000113: false
-  SRG-NET_000362_RTR_000115: false
+  SRG_NET_000362_RTR_000113: false
+  SRG_NET_000364_RTR_000113: false
+  SRG_NET_000362_RTR_000115: false
   SRG_NET_000364_RTR_000111: false
   SRG_NET_000364_RTR_000112: false
   SRG_NET_000512_RTR_000004: false
+  SRG_NET_000078_RTR_000001: false
+  SRG_NET_000512_RTR_000013: false
+  SRG_NET_000362_RTR_000112: false
+  SRG_NET_000362_RTR_000124: false
 
 #
 # The `external_interfaces` variable is used to specify the interfaces
@@ -43,14 +52,258 @@ external_interfaces:
   - Ethernet1/32
   - Ethernet1/14-17
 
-
 # 
 # Globally disable CDP on all interfaces
 #
 cisco_nxos_disable_cdp: true
 
 
-allowed_traffic:
-# permit tcp/etc <source> <destination> [port]
-# - 
+allowed_inbound_traffic:
+- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
+
+allowed_outbound_traffic:
+- permit|deny <protocol> <source> <destination> [eq <port>] [log]"
+
+external_mgmt_acl_name: EXTERNAL_MGMT_ACL
+external_mgmt_allowed_subnet: "10.0.0.0 0.0.0.255"
+external_mgmt_allowed_tcp_ports:
+  - 22   
+  - 443  
+external_mgmt_permit_icmp: true
+
+# Toggle for STIG rule SV-221074r999683 enforcement
+SV_221074r999683_rule_enabled: true
+
+# MD5 authentication keys and settings for routing protocols (placeholders)
+ospf_md5_key_id: 1
+ospf_md5_password: "CHANGEME"        # OSPF message-digest password (MD5)
+ospf_interfaces: []                 # List of interfaces running OSPF (e.g., ["Ethernet1/2", "Vlan10", ...])
+ospf_process_id: ""                 # OSPF process ID/tag (if empty, will be auto-detected)
+
+eigrp_instance: ""                  # EIGRP instance tag or AS number (if empty, will detect from config)
+eigrp_md5_password: "CHANGEME"      # EIGRP MD5 auth key (should correspond to a key-chain configured)
+eigrp_interfaces: []                # Interfaces running EIGRP (e.g., ["Ethernet1/3"])
+
+isis_instance: ""                   # IS-IS process tag (if empty, will detect if "router isis <tag>" is present)
+isis_levels: [1, 2]                 # IS-IS levels to apply MD5 (Level-1 and/or Level-2)
+isis_md5_password: "CHANGEME"       # IS-IS authentication key (if using key-chain, ensure key-chain is defined)
+
+bgp_as: ""                          # BGP Autonomous System number (if empty, will detect from running config)
+bgp_neighbors: []                   # List of BGP neighbor IPs to configure MD5 authentication
+bgp_md5_password: "CHANGEME"        # BGP neighbor password (MD5 shared secret)
+
+rip_instance: ""                    # RIP instance tag (if empty, will detect "router rip <tag>" if present)
+rip_md5_password: "CHANGEME"        # RIP authentication key (if using key-chain, ensure it's defined)
+rip_interfaces: []                  # Interfaces running RIP
+
+
+allowed_ipv6_ula_ranges:
+  - "fc00::/7"
+  - "fe80::/10"
+
+  #
+# ACL definitions for general flow control (used in VLANs, interfaces)
+#
+acl_definitions:
+  - name: FILTER_SERVER_TRAFFIC
+    direction: in
+    interface: Ethernet1/30
+    afi: ipv4
+    rules:
+      - sequence: 10
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.12.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "515"
+      - sequence: 20
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.12.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "631"
+      - sequence: 30
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.12.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "9100"
+      - sequence: 40
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.13.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "1433"
+      - sequence: 50
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.13.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "1434"
+      - sequence: 60
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          address: "10.1.13.0"
+          wildcard_bits: "0.0.0.255"
+          port_protocol:
+            eq: "4022"
+      - sequence: 70
+        grant: permit
+        protocol: icmp
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 80
+        grant: permit
+        protocol: ospf
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 90
+        grant: deny
+        protocol: ip
+        source:
+          any: true
+        destination:
+          any: true
+
+  - name: FILTER_PRINTER_VLAN
+    direction: out
+    interface: Vlan12
+    afi: ipv4
+    rules:
+      - sequence: 10
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "515"
+      - sequence: 20
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "631"
+      - sequence: 30
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "9100"
+      - sequence: 40
+        grant: permit
+        protocol: icmp
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 50
+        grant: deny
+        protocol: ip
+        source:
+          any: true
+        destination:
+          any: true
+
+  - name: FILTER_SQL_VLAN
+    direction: out
+    interface: Vlan13
+    afi: ipv4
+    rules:
+      - sequence: 10
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "1433"
+      - sequence: 20
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "1434"
+      - sequence: 30
+        grant: permit
+        protocol: tcp
+        source:
+          any: true
+        destination:
+          any: true
+          port_protocol:
+            eq: "4033"
+      - sequence: 40
+        grant: permit
+        protocol: icmp
+        source:
+          any: true
+        destination:
+          any: true
+      - sequence: 50
+        grant: deny
+        protocol: ip
+        source:
+          any: true
+        destination:
+          any: true
+
+# -------------------------------------------------------------------
+# STIG Rule: SV-221073r999682 - Enforce 180-day routing key durations
+# -------------------------------------------------------------------
+ospf_auth_keys:
+  - interface: Ethernet1/1
+    key_id: 1
+    key_string: "071739545611011d0f0a13141c"
+    accept_start: "00:00:00 Aug 4 2025"
+    accept_end:   "01:05:00 Nov 30 2025"
+    send_start:   "00:00:00 Aug 4 2025"
+    send_end:     "23:59:59 Nov 29 2025"
+  - interface: Ethernet1/2
+    key_id: 2
+    key_string: "071c244f5c0c0d0e120b59"
+    accept_start: "23:55:00 Nov 29 2025"
+    accept_end:   "01:05:00 Mar 1 2026"
+    send_start:   "00:00:00 Nov 30 2025"
+    send_end:     "23:59:59 Feb 28 2026"
+
+
 
