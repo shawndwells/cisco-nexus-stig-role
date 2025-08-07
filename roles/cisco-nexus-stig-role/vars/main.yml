@@ -27,6 +27,7 @@ stig_rules:
   SRG_NET_000168_RTR_000077: false
   SRG_NET_000168_RTR_000077: false
   SRG_NET_000205_RTR_000015: false
+  SRG_NET_000230_RTR_000001: true
   SRG_NET_000230_RTR_000003: false
   SRG_NET_000362_RTR_000111: false
   SRG_NET_000362_RTR_000113: false
@@ -286,6 +287,24 @@ acl_definitions:
         destination:
           any: true
 
+# STIG Rule: SV-221073r999681 - Ensure message authentication for control plane protocols
+routing_protocol_auth:
+  ospf:
+    interfaces:
+      - interface: Ethernet1/30
+        key_chain: OSPF_KEY
+  eigrp:
+    interfaces:
+      - interface: Ethernet1/29
+        key_chain: EIGRP_KEY
+  isis:
+    interfaces:
+      - interface: Ethernet1/27
+        key_chain: IS-IS_KEY
+  rip:
+    interfaces:
+      - interface: Ethernet1/28
+        key_chain: RIP_KEY
 # -------------------------------------------------------------------
 # STIG Rule: SV-221073r999682 - Enforce 180-day routing key durations
 # -------------------------------------------------------------------
@@ -304,6 +323,4 @@ ospf_auth_keys:
     accept_end:   "01:05:00 Mar 1 2026"
     send_start:   "00:00:00 Nov 30 2025"
     send_end:     "23:59:59 Feb 28 2026"
-
-
 

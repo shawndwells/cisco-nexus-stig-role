@@ -1,0 +1,38 @@
+# DISA STIG:
+#   SRG-NET-000230-RTR-000001
+#   Severity: medium
+#   Rule ID: SV-221073r999681
+#   Identifiers: SV-110963, V-101859, CCI-000366, CCI-002205
+#   Title: The Cisco switch must be configured to implement message authentication for all control plane protocols.
+---
+- name: Configure OSPF authentication using key chain
+  cisco.nxos.nxos_config:
+    lines:
+      - "ip ospf authentication key-chain {{ item.key_chain }}"
+    parents: ["interface {{ item.interface }}"]
+    match: line
+    replace: line
+  loop: "{{ routing_protocol_auth.ospf.interfaces }}"
+  when: routing_protocol_auth.ospf is defined
+
+- name: Configure EIGRP authentication using key chain
+  cisco.nxos.nxos_config:
+    lines:
+      - "ip authentication mode eigrp 1 md5"
+      - "ip authentication key-chain eigrp 1 {{ item.key_chain }}"
+    parents: ["interface {{ item.interface }}"]
+    match: line
+    replace: line
+  loop: "{{ routing_protocol_auth.eigrp.interfaces }}"
+  when: routing_protocol_auth.eigrp is defined
+
+- name: Configure RIP authentication using key chain
+  cisco.nxos.nxos_config:
+    lines:
+      - "ip rip authentication mode md5"
+      - "ip rip authentication key-chain {{ item.key_chain }}"
+    parents: ["interface {{ item.interface }}"]
+    match: line
+    replace: line
+  loop: "{{ routing_protocol_auth.rip.interfaces }}"
+  when: routing_protocol_auth.rip is defined
