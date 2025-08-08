@@ -288,23 +288,16 @@ acl_definitions:
           any: true
 
 # STIG Rule: SV-221073r999681 - Ensure message authentication for control plane protocols
-routing_protocol_auth:
-  ospf:
-    interfaces:
-      - interface: Ethernet1/30
-        key_chain: OSPF_KEY
-  eigrp:
-    interfaces:
-      - interface: Ethernet1/29
-        key_chain: EIGRP_KEY
-  isis:
-    interfaces:
-      - interface: Ethernet1/27
-        key_chain: IS-IS_KEY
-  rip:
-    interfaces:
-      - interface: Ethernet1/28
-        key_chain: RIP_KEY
+ospf_key_chain: OSPF_KEY
+eigrp_key_chain: EIGRP_KEY
+isis_key_chain: ISIS_KEY
+rip_key_chain: RIP_KEY
+
+bgp_as: 65001
+bgp_password: BGP_SECRET
+bgp_neighbors:
+  - 10.1.1.1
+  - 10.2.2.2
 # -------------------------------------------------------------------
 # STIG Rule: SV-221073r999682 - Enforce 180-day routing key durations
 # -------------------------------------------------------------------
